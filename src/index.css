@@ -1,13 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components{
+  .header{
+    width: 100%;
+    height: 100vh;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(/src/assets/images/bg-header.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 999;
+  }
+  .header-dark{
+    width: 100%;
+    height: 100vh;
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(/src/assets/images/australia.jpg) ;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 999;
+  }
+  .background-none{
+    background: none !important;
+  }
+  .background-nav{
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)) !important;
+  }
+  .background-nav-dark{
+    background: #1f2937 !important;
+  }
 }
