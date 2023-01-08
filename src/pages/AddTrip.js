@@ -1,10 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { TextInput, Label, Select, Button, FileInput } from "flowbite-react";
+import {
+    TextInput,
+    Label,
+    Select,
+    Button,
+    FileInput,
+    Spinner,
+    Alert,
+} from "flowbite-react";
 import { API } from "../config/api";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 
+// firebase
+import { storage } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
+
 const AddTrip = () => {
+    const [images, setImages] = useState([]);
+    const [urls, setUrls] = useState([]);
+    const [progress, setProgress] = useState();
+
+    const handleChangeImage = (e) => {
+        for (let i = 0; i < e.target.files.length; i++) {
+            const newImage = e.target.files[i];
+            newImage["id"] = Math.random();
+            setImages((prevState) => [...prevState, newImage]);
+        }
+    };
+
+    const handleUpload = () => {
+        if (images.length === 0) return;
+        setProgress(
+            <div className="flex items-center gap-3 my-3">
+                <Spinner color="success" aria-label="Success spinner example" />
+                <span>Uploading...</span>
+            </div>
+        );
+        images.map((image) => {
+            const imageRef = ref(storage, `images/${image.name + v4()}`);
+
+            uploadBytes(imageRef, image).then((snapshot) => {
+                getDownloadURL(snapshot.ref).then((urls) => {
+                    setUrls((prevState) => [...prevState, { image: urls }]);
+                });
+                setProgress(
+                    <Alert color="success" className="mt-2">
+                        <span>Upload Finish</span>
+                    </Alert>
+                );
+            });
+        });
+        setImages([]);
+    };
+
+    console.log("images: ", images);
+    console.log(urls);
+
     const navigate = useNavigate();
     const [country, setCountry] = useState();
     const [countryId, setCountryId] = useState();
@@ -38,8 +91,8 @@ const AddTrip = () => {
     const handleChange = (e) => {
         setForm({
             ...form,
-            [e.target.name]:
-                e.target.type === "file" ? e.target.files : e.target.value,
+            [e.target.name]: e.target.value,
+            // e.target.type === "file" ? e.target.files : e.target.value,
         });
     };
 
@@ -47,7 +100,7 @@ const AddTrip = () => {
         setCountryId(e.target.value);
     };
 
-    console.log(country);
+    // console.log(country);
 
     const handleSubmit = useMutation(async (e) => {
         try {
@@ -70,7 +123,7 @@ const AddTrip = () => {
             formData.set("price", form.price);
             formData.set("quota", form.quota);
             formData.set("description", form.description);
-            formData.set("image", form.image[0]);
+            // formData.set("image", form.image[0]);
 
             const response = await API.post("/trip", formData, config);
             console.log(response);
@@ -103,7 +156,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* trip */}
-
                     {/* country */}
                     <div id="select">
                         <div className="mb-2 block">
@@ -127,7 +179,6 @@ const AddTrip = () => {
                         </Select>
                     </div>
                     {/* country */}
-
                     {/* accomodation */}
                     <div>
                         <div className="mb-2 block">
@@ -145,7 +196,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* accomodation */}
-
                     {/* transportation */}
                     <div>
                         <div className="mb-2 block">
@@ -163,7 +213,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* transportation */}
-
                     {/* eat */}
                     <div id="select">
                         <div className="mb-2 block">
@@ -184,7 +233,6 @@ const AddTrip = () => {
                         </Select>
                     </div>
                     {/* eat */}
-
                     {/* duration */}
                     <div>
                         <Label value="Duration" />
@@ -217,7 +265,6 @@ const AddTrip = () => {
                         </div>
                     </div>
                     {/* duration */}
-
                     {/* Date */}
                     <div>
                         <div className="mb-2 block">
@@ -232,7 +279,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* Date */}
-
                     {/* price */}
                     <div>
                         <div className="mb-2 block">
@@ -247,7 +293,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* price */}
-
                     {/* quota */}
                     <div>
                         <div className="mb-2 block">
@@ -261,7 +306,6 @@ const AddTrip = () => {
                         />
                     </div>
                     {/* quota */}
-
                     {/* description */}
                     <div>
                         <label
@@ -280,7 +324,6 @@ const AddTrip = () => {
                         ></textarea>
                     </div>
                     {/* description */}
-
                     {/* image */}
                     <div id="fileUpload">
                         <div className="mb-2 block">
@@ -289,12 +332,34 @@ const AddTrip = () => {
                         <FileInput
                             id="file"
                             name="image"
-                            onChange={handleChange}
+                            onChange={handleChangeImage}
                             // helperText="A profile picture is useful to confirm your are logged into your account"
                         />
-                    </div>
-                    {/* image */}
+                        {progress}
+                        <div className="mt-2">
+                            <button
+                                type="button"
+                                onClick={handleUpload}
+                                className="px-5 py-2 rounded-md bg-blue-500 text-white font-medium text-sm"
+                            >
+                                Upload
+                            </button>
+                        </div>
 
+                        <div className="flex items-center gap-3 mt-3">
+                            {urls.map((item) => (
+                                <div className="w-28 h-28">
+                                    <img
+                                        key={item.id}
+                                        src={item.image}
+                                        alt="gambar"
+                                        className="w-full h-full object-fill"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {/* {image} */}
                     <Button className="mt-5" type="submit">
                         Submit
                     </Button>

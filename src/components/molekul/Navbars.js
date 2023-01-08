@@ -89,7 +89,7 @@ const Navbars = () => {
         userFetch();
     }, []);
 
-    console.log(user?.avatar);
+    // console.log(user?.avatar);
 
     return (
         <>

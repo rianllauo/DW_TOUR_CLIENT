@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 // component
-import { Alert, Modal } from "flowbite-react";
+import { Alert, Modal, Progress, Spinner } from "flowbite-react";
 import CardProfile from "../components/card/CardProfile";
 import { API } from "../config/api";
 
@@ -38,64 +38,112 @@ const Profile = () => {
         setShow(false);
     };
 
-    // update profile image
-    const [imageUpload, setImageUpload] = useState(null);
-    const [alert, setAlert] = useState();
-    const [img, setImg] = useState();
-    const [userImage, setUserImage] = useState({
-        avatar: null,
-    });
+    // // update profile image
+    // const [imageUpload, setImageUpload] = useState(null);
+    // const [alert, setAlert] = useState();
+    // const [img, setImg] = useState({
+    //     image : ""
+    // });
+    // const [userImage, setUserImage] = useState([]);
+    // // let userImage = []
 
-    const uploadImage = () => {
-        if (imageUpload == null) return;
+    // const uploadImage = () => {
+    //     if (imageUpload == null) return;
 
-        const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    //     const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
 
-        uploadBytes(imageRef, imageUpload).then((snapshot) => {
-            setAlert(
-                <Alert color="success">
-                    <span>
-                        <span className="font-medium">Success</span> Upload
-                        Image
-                    </span>
-                </Alert>
-            );
-            getDownloadURL(snapshot.ref).then((url) => {
-                setImg(url);
+    //     uploadBytes(imageRef, imageUpload).then((snapshot) => {
+    //         setAlert(
+    //             <Alert color="success">
+    //                 <span>
+    //                     <span className="font-medium">Success</span> Upload
+    //                     Image
+    //                 </span>
+    //             </Alert>
+    //         );
+    //         getDownloadURL(snapshot.ref).then((url) => {
+    //             setImg(url);
+    //         });
+
+    //     });
+
+    // };
+
+    // // useEffect(() => {
+    // //     // setUserImage({
+    // //     //     ...userImage,
+    // //     //     avatar: img,
+    // //     // });
+    // //     setUserImage([img])
+    // // }, [userImage]);
+
+    // const handleSumbit = async (e) => {
+    //     e.preventDefault();
+
+    //     // uploadImage();
+
+    //     const config = {
+    //         Headers: {
+    //             "Content-type": "multipart/form-data",
+    //         },
+    //     };
+
+    //     const body = userImage;
+
+    //     const response = await API.patch(`/user/${userId.id}`, body, config);
+    //     console.log(response);
+    //     navigate(0);
+    // };
+
+    // console.log(img);
+
+    // const handleChangeImage = (e) => {
+    //     for (let i = 0; i < e.target.files.length; i++) {
+    //         const newImage = e.target.files[i]
+    //         setImageUpload((prevState) => [...prevState, newImage])
+    //     }
+    //     // setImageUpload(e.target.files[0]);
+    // };
+
+    const [images, setImages] = useState([]);
+    const [urls, setUrls] = useState([]);
+    const [progress, setProgress] = useState();
+
+    const handleChange = (e) => {
+        for (let i = 0; i < e.target.files.length; i++) {
+            const newImage = e.target.files[i];
+            newImage["id"] = Math.random();
+            setImages((prevState) => [...prevState, newImage]);
+        }
+    };
+
+    const handleUpload = () => {
+        if (images == null) return;
+        setProgress(
+            <div className="flex items-center gap-3">
+                <Spinner color="success" aria-label="Success spinner example" />
+                <span>Uploading...</span>
+            </div>
+        );
+        images.map((image) => {
+            const imageRef = ref(storage, `images/${image.name + v4()}`);
+
+            uploadBytes(imageRef, image).then((snapshot) => {
+                getDownloadURL(snapshot.ref).then((urls) => {
+                    setUrls((prevState) => [...prevState, urls]);
+                });
+                setProgress(
+                    <Alert color="success">
+                        <span>Upload Finish</span>
+                    </Alert>
+                );
             });
         });
+        setImages([]);
     };
 
-    useEffect(() => {
-        setUserImage({
-            ...userImage,
-            avatar: img,
-        });
-    }, [img]);
-
-    const handleSumbit = async (e) => {
-        e.preventDefault();
-
-        // uploadImage();
-
-        const config = {
-            Headers: {
-                "Content-type": "multipart/form-data",
-            },
-        };
-
-        const body = userImage;
-
-        const response = await API.patch(`/user/${userId.id}`, body, config);
-        console.log(response);
-        navigate(0);
-    };
-
-    console.log(userImage);
-
-    const handleChangeImage = (e) => {
-        setImageUpload(e.target.files[0]);
-    };
+    console.log("images: ", images);
+    console.log("urls", urls);
 
     return (
         <>
@@ -110,14 +158,16 @@ const Profile = () => {
             <Modal show={show} size="sm" onClose={handleClose}>
                 <Modal.Header>Upload Image</Modal.Header>
                 <Modal.Body>
-                    {alert}
+                    {progress}
+                    <input type="file" multiple onChange={handleChange} />
+
                     <button
-                        onClick={uploadImage}
+                        onClick={handleUpload}
                         className="ml-3 mt-3 px-5 py-1.5 rounded-md bg-blue-600 text-white font-medium text-sm"
                     >
                         Upload
                     </button>
-                    <form onSubmit={handleSumbit} className="mt-3">
+                    {/* <form onSubmit={handleUpload} className="mt-3">
                         <div class="flex items-center justify-center ">
                             <label
                                 for="dropzone-file"
@@ -150,7 +200,7 @@ const Profile = () => {
                                     id="dropzone-file"
                                     type="file"
                                     class="hidden"
-                                    onChange={handleChangeImage}
+                                    onChange={handleChange}
                                 />
                             </label>
                         </div>
@@ -162,7 +212,7 @@ const Profile = () => {
                                 Save Image
                             </button>
                         </div>
-                    </form>
+                    </form> */}
                 </Modal.Body>
             </Modal>
         </>

@@ -9,7 +9,6 @@ import location from "../../assets/icons/location.svg";
 import blankProfile from "../../assets/images/blank-profile.png";
 
 const CardProfile = ({ user, show, close }) => {
-    console.log(user);
     return (
         <div className="py-28 max-w-screen-md mx-auto">
             <Card>

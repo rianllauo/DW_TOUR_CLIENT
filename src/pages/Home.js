@@ -35,12 +35,14 @@ const Home = () => {
     }, []);
 
     // search function
-    const [state, setState] = useState(null);     
+    const [state, setState] = useState(null);
 
     const handleChange = (e) => {
         const results = trips.filter((trip) => {
             if (e.target.value === "") return trips;
-            return trip.name.toLowerCase().includes(e.target.value.toLowerCase());
+            return trip.name
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase());
         });
         setState({
             query: e.target.value,
@@ -48,9 +50,8 @@ const Home = () => {
         });
     };
 
-    console.log(state)
+    console.log(state);
 
-   
     return (
         <div className="bg-slate-100  dark:bg-gray-900 transition duration-300">
             <div className="header w-full h-screen dark:header-dark flex items-center justify-center transition duration-300">
@@ -124,34 +125,29 @@ const Home = () => {
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-3 items-center mt-8">
-                        {
-                             state === null ? 
-                             trips.map((trip) => (
-                                <TourCard
-                                    key={trip.id}
-                                    image={trip.image}
-                                    title={trip.name}
-                                    country={trip.country.name}
-                                    price={trip.price}
-                                    index={trip.id}
-                                    quota={trip.quota}
-                                />
-                            ))
-                            :
-                            state.list?.map(trip => (
-                               <TourCard
-                                   key={trip.id}
-                                   image={trip.image}
-                                   title={trip.name}
-                                   country={trip.country.name}
-                                   price={trip.price}
-                                   index={trip.id}
-                                   quota={trip.quota}
-                               />
-                            ))
-                             
-                        }
-                        
+                        {state === null
+                            ? trips.map((trip) => (
+                                  <TourCard
+                                      key={trip.id}
+                                      image={trip.image}
+                                      title={trip.name}
+                                      country={trip.country.name}
+                                      price={trip.price}
+                                      index={trip.id}
+                                      quota={trip.quota}
+                                  />
+                              ))
+                            : state.list?.map((trip) => (
+                                  <TourCard
+                                      key={trip.id}
+                                      image={trip.image}
+                                      title={trip.name}
+                                      country={trip.country.name}
+                                      price={trip.price}
+                                      index={trip.id}
+                                      quota={trip.quota}
+                                  />
+                              ))}
                     </div>
                 </div>
             </div>
